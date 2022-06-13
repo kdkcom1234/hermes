@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  </head>
+  <body>
+    Redirecting...
+    <script>
+      (function () {
+        const JS_KEY = '2abdd5014fb625e67c19660bc039728e';
+
+        const REST_API_KEY = 'c23051c38dd9e579e91bf815c74df550';
+        const REDIRECT_URI = 'http://192.168.11.21:5500/web/redirect.html';
+
+        const params = new URL(document.location).searchParams;
+        const code = params.get('code');
+        // alert(code);
+
+        (async function () {
+          try {
+            // 액세스 토큰 가져오기
+            let response = await fetch('https://kauth.kakao.com/oauth/token', {
+              method: 'POST',
+              mode: 'cors',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+              },
+              body: `grant_type=authorization_code&client_id=${REST_API_KEY}&redirect_uri=${encodeURI(
+                REDIRECT_URI,
+              )}&code=${code}`,
+            });
+            let result = await response.json();
+
+            Kakao.init(JS_KEY);
+            Kakao.Auth.setAccessToken(result.access_token);
+
+            // 사용자 정보 가져오기
+            Kakao.API.request({
+              url: '/v2/user/me',
+              success: function (response) {
+                if (window.ReactNativeWebView) {
+                  window.ReactNativeWebView.postMessage(
+                    JSON.stringify({
+                      accessToken: result.access_token,
+                      profile: {
+                        email: response.kakao_account.email,
+                        nickname: response.kakao_account.profile.nickname,
+                        imageUrl: response.kakao_account.profile.profile_image_url,
+                      },
+                    }),
+                  );
+                } else {
+                  alert(JSON.stringify(response));
+                }
+              },
+              fail: function (error) {
+                alert(error);
+              },
+            });
+          } catch (e) {
+            alert(e);
+          }
+        })();
+      })();
+    </script>
+  </body>
+</html>
