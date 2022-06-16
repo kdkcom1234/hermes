@@ -45,6 +45,7 @@
                 if (window.ReactNativeWebView) {
                   window.ReactNativeWebView.postMessage(
                     JSON.stringify({
+                      id: response.id,
                       accessToken: result.access_token,
                       profile: {
                         email: response.kakao_account.email,
