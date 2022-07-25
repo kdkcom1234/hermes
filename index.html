@@ -5,14 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   </head>
   <body>
     Redirecting...
     <script>
       (function () {
-        const JS_KEY = 'a07c911e1a3815f1cd1d6feacdc5bf09';
-
         const REST_API_KEY = '5f3ef3f358b72c4a64b6adbcbf1293cf';
         const REDIRECT_URI = 'https://kdkcom1234.github.io/hermes/index.html';
 
@@ -22,7 +19,6 @@
 
         (async function () {
           try {
-            // 액세스 토큰 가져오기
             let response = await fetch('https://kauth.kakao.com/oauth/token', {
               method: 'POST',
               mode: 'cors',
@@ -34,49 +30,12 @@
               )}&code=${code}`,
             });
             let result = await response.json();
-
-            Kakao.init(JS_KEY);
-            Kakao.Auth.setAccessToken(result.access_token);
-
-            // 사용자 정보 가져오기
-            Kakao.API.request({
-              url: '/v2/user/me',
-              success: function (response) {
-                if (window.ReactNativeWebView) {
-                  window.ReactNativeWebView.postMessage(
-                    JSON.stringify({
-                      id: response.id,
-                      accessToken: result.access_token,
-                      profile: {
-                        // email: response.kakao_account.email,
-                        nickname: response.kakao_account.profile.nickname,
-                        imageUrl: response.kakao_account.profile.profile_image_url,
-                      },
-                    }),
-                  );
-                } else {
-                  alert(JSON.stringify(response));
-                }
-              },
-              fail: function (error) {
-                if (window.ReactNativeWebView) {
-                  window.ReactNativeWebView.postMessage(
-                    JSON.stringify({
-                      accessToken: '',
-                    }),
-                  );
-                } else {
-                  alert(JSON.stringify(error));
-                }
-              },
-            });
+            if (window.ReactNativeWebView) {
+              window.ReactNativeWebView.postMessage(result.access_token);
+            }
           } catch (error) {
             if (window.ReactNativeWebView) {
-              window.ReactNativeWebView.postMessage(
-                JSON.stringify({
-                  accessToken: '',
-                }),
-              );
+              window.ReactNativeWebView.postMessage('');
             } else {
               alert(error.message);
             }
